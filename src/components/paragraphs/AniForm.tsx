@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Input } from '../shared/Input'; 
 import { Button } from '../shared/Button';
@@ -42,7 +41,7 @@ export const AniForm: React.FC<AniFormProps> = ({ currentTemplate, showToast }) 
   const [isParagraphModalOpen, setIsParagraphModalOpen] = useState(false);
   const [focusLastAccused, setFocusLastAccused] = useState(false);
   
-  const officialAnswerQueryRef = useRef<HTMLInputElement>(null);
+  const officialAnswerQueryRef = useRef<HTMLInputElement>(null) as React.RefObject<HTMLInputElement>;
   const additionalAccusedItemRefs = useRef<Array<AdditionalAccusedAniItemRef | null>>([]);
 
   useEffect(() => {
@@ -182,8 +181,9 @@ export const AniForm: React.FC<AniFormProps> = ({ currentTemplate, showToast }) 
           }
         });
          if (firstErrorAccusedDetails && !firstErrorFieldToFocus) {
-            const fieldTypeToFocus = newFieldErrors[`additionalAccused[${firstErrorAccusedDetails.index}].accusedName`] ? 'accusedName' : 'identificationNumber';
-             additionalAccusedItemRefs.current[firstErrorAccusedDetails.index]?.focusFirstInvalidInput(
+            const details = firstErrorAccusedDetails as { index: number; fieldType: 'accusedName' | 'identificationNumber' };
+            const fieldTypeToFocus = newFieldErrors[`additionalAccused[${details.index}].accusedName`] ? 'accusedName' : 'identificationNumber';
+            additionalAccusedItemRefs.current[details.index]?.focusFirstInvalidInput(
                 fieldTypeToFocus === 'accusedName' ? { accusedName: true } : { identificationNumber: true }
             );
          }
@@ -215,12 +215,11 @@ export const AniForm: React.FC<AniFormProps> = ({ currentTemplate, showToast }) 
         officialAnswerQuery: formData.officialAnswerQuery,
         additionalAccused: formData.additionalAccused,
       };
-            
       const finalParagraph = generateParagraphText('ANI', dataForTemplate, currentTemplate);
-        
       setGeneratedParagraphForModal(finalParagraph);
       setIsParagraphModalOpen(true);
       showToast(UI_TEXT.toastMessages.paragraphGeneratedSuccess, 'success');
+      setFormData(initialAniFormData);
     }
   };
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../shared/Button';
 import { UI_TEXT } from '../../constants';
@@ -18,9 +17,8 @@ const initialWebServiceFormData: { additionalAccused: AdditionalAccusedEntry[] }
   additionalAccused: [] 
 };
 
-
-export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate, showToast }) => {
-  const [formData, setFormData] = useState(initialWebServiceFormData);
+export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate, showToast }: WebServiceFormProps) => {
+  const [formData, setFormData] = useState<typeof initialWebServiceFormData>(initialWebServiceFormData);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>({});
   const [generatedParagraphForModal, setGeneratedParagraphForModal] = useState<string | null>(null);
@@ -43,7 +41,7 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
   const formIcon = <Globe size={32} className="mr-3 text-indigo-400" />;
 
   const handleAddAdditionalAccused = useCallback(() => {
-    setFormData(prev => ({
+    setFormData((prev: typeof initialWebServiceFormData) => ({
       ...prev,
       additionalAccused: [
         ...prev.additionalAccused, 
@@ -56,9 +54,9 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
 
   const handleAdditionalAccusedChange = useCallback((id: string, field: 'accusedName' | 'identificationNumber', value: string) => { 
     let itemIndex = -1;
-    setFormData(prev => ({
+    setFormData((prev: typeof initialWebServiceFormData) => ({
       ...prev,
-      additionalAccused: prev.additionalAccused.map((item, index) => { 
+      additionalAccused: prev.additionalAccused.map((item: AdditionalAccusedEntry, index: number) => { 
         if (item.id === id) {
           itemIndex = index;
           return { ...item, [field]: value };
@@ -67,7 +65,7 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
       })
     }));
     if (itemIndex !== -1) {
-      setFieldErrors(prevErrors => {
+      setFieldErrors((prevErrors: Record<string, string | null>) => {
         const newErrors = { ...prevErrors };
         delete newErrors[`additionalAccused[${itemIndex}].${String(field)}`];
         return newErrors;
@@ -77,21 +75,21 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
   }, []);
   
   const handleAccusedQueryResultChange = useCallback((id: string, value: 'Positivo' | 'Negativo' | '') => {
-    setFormData(prev => ({
+    setFormData((prev: typeof initialWebServiceFormData) => ({
       ...prev,
-      additionalAccused: prev.additionalAccused.map(item => (item.id === id ? { ...item, queryResult: value } : item))
+      additionalAccused: prev.additionalAccused.map((item: AdditionalAccusedEntry) => (item.id === id ? { ...item, queryResult: value } : item))
     }));
     setError(null);
   }, []);
 
   const handleRemoveAdditionalAccused = useCallback((id: string) => {
-    const removedItemIndex = formData.additionalAccused.findIndex(acc => acc.id === id);
-    setFormData(prev => ({
+    const removedItemIndex = formData.additionalAccused.findIndex((acc: AdditionalAccusedEntry) => acc.id === id);
+    setFormData((prev: typeof initialWebServiceFormData) => ({
       ...prev,
-      additionalAccused: prev.additionalAccused.filter(acc => acc.id !== id)
+      additionalAccused: prev.additionalAccused.filter((acc: AdditionalAccusedEntry) => acc.id !== id)
     }));
     if (removedItemIndex !== -1) {
-        setFieldErrors(prevFieldErrors => {
+        setFieldErrors((prevFieldErrors: Record<string, string | null>) => {
             const newErrors = {...prevFieldErrors};
             delete newErrors[`additionalAccused[${removedItemIndex}].accusedName`];
             delete newErrors[`additionalAccused[${removedItemIndex}].identificationNumber`];
@@ -111,7 +109,7 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
       return false;
     }
     
-    formData.additionalAccused.forEach((accusedItem, index) => {
+    formData.additionalAccused.forEach((accusedItem: AdditionalAccusedEntry, index: number) => {
       if (!accusedItem.accusedName.trim()) {
         newFieldErrors[`additionalAccused[${index}].accusedName`] = `El Nombre (Indiciado #${index + 1}) es requerido.`;
         hasValidationErrors = true;
@@ -120,17 +118,18 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
       if (!accusedItem.identificationNumber.trim()) {
         newFieldErrors[`additionalAccused[${index}].identificationNumber`] = `La Identificación (Indiciado #${index + 1}) es requerida.`;
         hasValidationErrors = true;
-        if (!firstErrorAccusedDetails) firstErrorAccusedDetails = { index, fieldType: 'identificationNumber' };
+        if (!firstErrorAccusedDetails || firstErrorAccusedDetails.index !== index) firstErrorAccusedDetails = { index, fieldType: 'identificationNumber' };
       }
     });
 
     if (hasValidationErrors) {
       setFieldErrors(newFieldErrors);
-      if (firstErrorAccusedDetails) {
-        const errorsToPassToItem: any = {};
-        if (firstErrorAccusedDetails.fieldType === 'accusedName') errorsToPassToItem.accusedName = true;
-        if (firstErrorAccusedDetails.fieldType === 'identificationNumber') errorsToPassToItem.identificationNumber = true;
-        additionalAccusedItemRefs.current[firstErrorAccusedDetails.index]?.focusFirstInvalidInput(errorsToPassToItem);
+      if (firstErrorAccusedDetails !== null) {
+        const details = firstErrorAccusedDetails as { index: number; fieldType: 'accusedName' | 'identificationNumber' };
+        const errorsToPassToItem: { accusedName?: boolean; identificationNumber?: boolean } = {};
+        if (details.fieldType === 'accusedName') errorsToPassToItem.accusedName = true;
+        if (details.fieldType === 'identificationNumber') errorsToPassToItem.identificationNumber = true;
+        additionalAccusedItemRefs.current[details.index]?.focusFirstInvalidInput(errorsToPassToItem);
       }
       setError(UI_TEXT.errorMessages.formCompletionRequiredParagraph);
       return false;
@@ -141,7 +140,7 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
     return true;
   };
   
-  const handleGenerateParagraphLocally = (e: React.FormEvent) => {
+  const handleGenerateParagraphLocally = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setGeneratedParagraphForModal(null);
     setIsParagraphModalOpen(false);
@@ -151,12 +150,11 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
       const dataForTemplate = {
         additionalAccused: formData.additionalAccused,
       };
-            
       const finalParagraph = generateParagraphText('WEB_SERVICE', dataForTemplate, currentTemplate);
-        
       setGeneratedParagraphForModal(finalParagraph);
       setIsParagraphModalOpen(true);
       showToast(UI_TEXT.toastMessages.paragraphGeneratedSuccess, 'success');
+      setFormData(initialWebServiceFormData);
     }
   };
 
@@ -200,10 +198,10 @@ export const WebServiceForm: React.FC<WebServiceFormProps> = ({ currentTemplate,
               {UI_TEXT.paragraphGenerator.additionalAccusedTitle}
           </h3>
           {formData.additionalAccused.length > 0 ? (
-            formData.additionalAccused.map((accusedItem, index) => (
+            formData.additionalAccused.map((accusedItem: AdditionalAccusedEntry, index: number) => (
               <AdditionalAccusedWebServiceItem 
                 key={accusedItem.id}
-                ref={el => { additionalAccusedItemRefs.current[index] = el; }}
+                ref={(el: AdditionalAccusedWebServiceItemRef | null) => { additionalAccusedItemRefs.current[index] = el; }}
                 accused={accusedItem}
                 index={index}
                 onChange={handleAdditionalAccusedChange}

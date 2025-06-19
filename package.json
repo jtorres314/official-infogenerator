@@ -9,18 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "lucide-react": "^0.511.0",
     "@google/genai": "^1.2.0",
     "docx": "^8.5.0",
     "file-saver": "^2.0.5",
     "handlebars": "^4.7.8",
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "scr": "^1.0.0",
     "src": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "typescript": "~5.7.2",
     "vite": "^6.2.0"
   }
