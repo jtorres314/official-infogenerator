@@ -1,0 +1,6 @@
+{
+  "name": "Official InfoGenerator",
+  "description": "Aplicación para la generación automatizada de informes estándares de devolución y párrafos para actividades de investigación, utilizando plantillas previamente configuradas.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
